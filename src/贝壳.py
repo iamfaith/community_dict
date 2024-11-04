@@ -43,7 +43,9 @@ class 贝壳:
         citys_dict = dict()
         for city_etree in citys_etree:
             city_name, city_url = city_etree.xpath('text()')[0], city_etree.xpath('@href')[0]
-            citys_dict[city_name] = {'city_name': city_name, 'city_url': city_url}
+            if city_name in ['珠海']:
+                citys_dict[city_name] = {'city_name': city_name, 'city_url': city_url}
+        # print(citys_dict)
         operation_file.write_json_file(self.citys_file_name, citys_dict)
 
     def get_plots(self, city_name, city_url):
@@ -93,7 +95,7 @@ class 贝壳:
         plots_dict = operation_file.read_json_file(file_name)
         i = 1
         for key in plots_dict.keys():
-            if plots_dict[key].get('地址') is None:
+            if plots_dict[key].get('地址') is None or plots_dict[key].get('地址') == '':
                 common.print_and_sleep('采集{name}小区详情: {url}'.format(name=key, url=plots_dict[key]['plot_url']))
                 plots_dict[key] = self._get_plots_detail(plots_dict[key])
                 i += 1
@@ -135,8 +137,10 @@ class 贝壳:
         '''
         if os.path.exists(self.citys_file_name) is False:
             self.get_citys()
-        for city_key, city_value in operation_file.read_json_file(self.citys_file_name).items():
-            if os.path.exists(self.plots_file_name.format(city=city_key)) is False:
-                self.get_plots(city_value['city_name'], city_value['city_url'])
+        # for city_key, city_value in operation_file.read_json_file(self.citys_file_name).items():
+            # if os.path.exists(self.plots_file_name.format(city=city_key)) is False:
+            # self.get_plots(city_value['city_name'], city_value['city_url'])
         for file_name in os.listdir(self.plots_dir_name):
-            self.get_plots_detail(self.plots_dir_name + file_name)
+            if '珠海.' in file_name:
+                print(file_name)
+                self.get_plots_detail(self.plots_dir_name + file_name)

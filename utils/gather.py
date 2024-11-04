@@ -1,7 +1,22 @@
 import requests
 
 from lxml import etree, html
+from fake_useragent import UserAgent
+import random
 
+def RandomHeader():
+    ua = UserAgent()
+    random_ip = lambda: '.'.join(
+        [str(int(''.join([str(random.randint(0, 2)), str(random.randint(0, 5)), str(random.randint(0, 5))]))) for _
+         in
+         range(4)])
+    # print(random_ip)
+    return {
+        'Content-Type': "application/json",
+        'X-Forwarded-For': random_ip(),
+        'remoteAddress': random_ip(),
+        'User-Agent': ua.random
+    }
 
 def get_html(url, coding='UTF-8', **kwargv):
     '''访问网站获取 html 并返回 html 代码
@@ -17,7 +32,8 @@ def get_html(url, coding='UTF-8', **kwargv):
         res = requests.get(url, **kwargv)
     except BaseException:
         print('连接失败, 正在重试')
-        res = requests.get(url, **kwargv)
+        header = RandomHeader()
+        res = requests.get(url,  headers=header, **kwargv)
     return res.content.decode(coding)
 
 
@@ -32,10 +48,12 @@ def get_html_to_etree(url, coding='UTF-8', **kwargv):
         etree 对象
     '''
     try:
+        
         res = requests.get(url, **kwargv)
     except BaseException:
         print('连接失败, 正在重试')
-        res = requests.get(url, **kwargv)
+        header = RandomHeader()
+        res = requests.get(url, headers=header)
     html = res.content.decode(coding)
     return etree.HTML(html)
 
@@ -54,7 +72,8 @@ def get_html_and_etree(url, coding='UTF-8', **kwargv):
         res = requests.get(url, **kwargv)
     except BaseException:
         print('连接失败, 正在重试')
-        res = requests.get(url, **kwargv)
+        header = RandomHeader()
+        res = requests.get(url, headers=header)
     html = res.content.decode(coding)
     return html, etree.HTML(html)
 
