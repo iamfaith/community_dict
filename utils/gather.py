@@ -49,7 +49,7 @@ def get_html_to_etree(url, coding='UTF-8', **kwargv):
     '''
     try:
         
-        res = requests.get(url, **kwargv)
+        res = requests.get(url, timeout=5000, **kwargv)
     except BaseException:
         print('连接失败, 正在重试')
         header = RandomHeader()
